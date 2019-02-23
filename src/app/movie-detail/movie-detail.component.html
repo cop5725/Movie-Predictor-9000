@@ -1,0 +1,7 @@
+<div *ngIf="movie">
+    <h2>{{movie.title}} Report</h2>
+    <div>
+        <span>revenue: </span>{{movie.revenue}}
+    </div>
+    <button (click)="goBack()">go back</button>
+</div>

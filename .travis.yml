@@ -1,0 +1,23 @@
+#.travis.yml
+
+sudo: required
+dist: trusty
+addons:
+  apt:
+    sources:
+      - google-chrome
+    packages:
+      - google-chrome-stable
+language: node_js
+node_js:
+  - "10"
+before_script:
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+install:
+  - npm install
+script:
+  - npm run ci
+  - npm install codecov -g
+after_success:
+  - codecov
