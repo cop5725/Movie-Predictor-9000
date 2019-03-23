@@ -35,15 +35,28 @@ let response = {
 router.get('/movies', (req, res) => {
     connection((db) => {
         db.execute(
-            `SELECT * FROM MOVIES`,
+            `SELECT title, revenue
+            FROM MOVIE
+            ORDER BY revenue DESC
+            FETCH FIRST 12 ROWS ONLY`,
             []
         ).then((movies) => {
-                response.data = movies.rows;
-                res.json(response);
-            })
-            .catch((err) => {
-                sendError(err, res);
-            });
+            movielist = [];
+            console.log(movies);
+            for (let movie of movies.rows) {
+                movieData = {};
+                for (let i = 0; i < movies.metaData.length; i++) {
+                    const datapoint = movies.metaData[i];
+                    movieData[datapoint.name.toLowerCase()] = movie[i]
+                }
+                movielist.push(movieData)
+            }
+            response.data = movielist;
+            res.json(response);
+        })
+        .catch((err) => {
+            sendError(err, res);
+        });
     });
 });
 
