@@ -1,0 +1,59 @@
+<h3>Predictive Analytics</h3>
+<div>
+    <form class="predict-form">
+        <mat-form-field class="predict-full-width">
+            <input matInput type="text" placeholder="Movie Genre" aria-label="Number" [formControl]="selectedGenre"
+                [matAutocomplete]="autoGenre">
+            <mat-autocomplete autoActiveFirstOption #autoGenre="matAutocomplete">
+                <mat-option *ngFor="let genre of filteredGenres | async" [value]="genre.name">
+                    {{genre.name}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="predict-full-width">
+            <input matInput type="text" placeholder="Lead Actor" aria-label="Number" [formControl]="selectedActor"
+                [matAutocomplete]="autoActor">
+            <mat-autocomplete autoActiveFirstOption #autoActor="matAutocomplete">
+                <mat-option *ngFor="let actor of filteredActors" [value]="actor.fullname">
+                    {{actor.fullname}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field class="predict-full-width">
+            <input matInput type="text" placeholder="Movie Director" aria-label="Number"
+                [formControl]="selectedDirector" [matAutocomplete]="autoDirector">
+            <mat-autocomplete autoActiveFirstOption #autoDirector="matAutocomplete">
+                <mat-option *ngFor="let director of filteredDirectors" [value]="director.fullname">
+                    {{director.fullname}}
+                </mat-option>
+            </mat-autocomplete>
+        </mat-form-field>
+        <mat-form-field>
+            <input matInput [matDatepicker]="picker" placeholder="Choose a date" [formControl]="selectedDate">
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+        </mat-form-field>
+    </form>
+    <button mat-raised-button color="primary" (click)="getPrediction()">Get Prediction!</button>
+</div>
+<div>
+</div>
+<div>
+    <mat-card class="predict-card">
+        <mat-card-header>
+            <mat-card-title>Expected Revenue</mat-card-title>
+            <mat-card-subtitle>${{ prediction.expected_revenue.toLocaleString('en', {useGrouping:true}) }}
+            </mat-card-subtitle>
+        </mat-card-header>
+    </mat-card>
+    <mat-card class="predict-card">
+        <mat-card-content>
+            <mat-card-title>Suggestions</mat-card-title>
+            <mat-card *ngIf="prediction.suggested_actor">Suggested Actor: {{ prediction.suggested_actor }}</mat-card>
+            <mat-card *ngIf="prediction.suggested_director">Suggested Director: {{ prediction.suggested_director }}
+            </mat-card>
+            <mat-card *ngIf="prediction.suggested_month">Suggested Start Month: {{ prediction.suggested_month }}
+            </mat-card>
+        </mat-card-content>
+    </mat-card>
+</div>

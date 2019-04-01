@@ -3,52 +3,51 @@ import { NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { HttpClientModule } from '@angular/common/http';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import {
-  MatFormFieldModule, MatInputModule,
-  MatAutocompleteModule, MatButtonModule,
-  MatTableModule, MatPaginatorModule,
-  MatRadioModule
-} from '@angular/material';
 import { RouteReuseStrategy } from '@angular/router';
 import { ChartsModule } from 'ng2-charts';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatRadioModule, MatPaginatorModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatButtonModule,MatTableModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
-import { MoviesComponent } from './movies/movies.component';
-import { MovieDetailComponent } from './movie-detail/movie-detail.component';
 import { AppRoutingModule } from './/app-routing.module';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { MovieDetailComponent } from './movie-detail/movie-detail.component';
 import { SearchBarComponent } from './search-bar/search-bar.component';
 import { PersonProfileComponent } from './person-profile/person-profile.component';
 import { CustomRouteReuseStrategy } from './custom-route-reuse.strategy';
+import { PredictiveAnalyticsComponent } from './predictive-analytics/predictive-analytics.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        MoviesComponent,
         MovieDetailComponent,
         DashboardComponent,
         SearchBarComponent,
-        PersonProfileComponent
+        PersonProfileComponent,
+        PredictiveAnalyticsComponent,
     ],
     imports: [
         BrowserModule,
         FormsModule,
         ReactiveFormsModule,
         HttpModule,
-        HttpClientModule,
         AppRoutingModule,
+        HttpClientModule,
+        BrowserAnimationsModule,
+        MatCardModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatAutocompleteModule,
         MatFormFieldModule,
         MatInputModule,
-        MatAutocompleteModule,
         MatButtonModule,
         MatTableModule,
         MatPaginatorModule,
         MatRadioModule,
-        BrowserAnimationsModule,
         ChartsModule
     ],
     providers: [
+        MatDatepickerModule,
       {
         provide: RouteReuseStrategy,
         useClass: CustomRouteReuseStrategy

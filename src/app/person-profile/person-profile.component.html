@@ -1,101 +1,104 @@
 <div>
-  <h2>{{person.fullname}}</h2>
+    <app-search-bar></app-search-bar>
+</div>
+<div>
+    <h2>{{person.fullname}}</h2>
 </div>
 <br />
 <div>
-  <h3>General Stats:</h3>
-  <p>Top Genres:</p>
-  <br />
-  <canvas baseChart [chartType]="genresChart.type" [datasets]="genresChart.data" [labels]="genresChart.labels"
-    [legend]="genresChart.legend" [options]="genresChart.options">
-  </canvas>
-</div>
-<br /> 
-<div>
-  <h3>Top Movies:</h3>
-  <br />
-  Select criteria:
-  <mat-radio-group [(ngModel)]="topMoviesCriteria" (change)="changeTopMoviesCriteria($event)">
-    <mat-radio-button value="rating">Rating</mat-radio-button>
-    <mat-radio-button value="revenue">Revenue</mat-radio-button>
-    <mat-radio-button value="popularity">Popularity</mat-radio-button>
-  </mat-radio-group>
-  <table mat-table #table [dataSource]="topMovies">
-    <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef> Title </th>
-      <td mat-cell *matCellDef="let row" (click)="routeToMovieDetail(row)"> {{row.title}} </td>
-    </ng-container>
-    <ng-container matColumnDef="role">
-      <th mat-header-cell *matHeaderCellDef> Credit </th>
-      <td mat-cell *matCellDef="let row"> {{row.role}} </td>
-    </ng-container>
-    <ng-container matColumnDef="revenue" *ngIf="topMoviesCriteria === 'revenue'">
-      <th mat-header-cell *matHeaderCellDef> Revenue </th>
-      <td mat-cell *matCellDef="let row"> {{row.revenue}} </td>
-    </ng-container>
-    <ng-container matColumnDef="avg_rating" *ngIf="topMoviesCriteria === 'rating'">
-      <th mat-header-cell *matHeaderCellDef> Rating </th>
-      <td mat-cell *matCellDef="let row"> {{row.avg_rating}} </td>
-    </ng-container>
-    <ng-container matColumnDef="releasedate">
-      <th mat-header-cell *matHeaderCellDef> ReleaseDate </th>
-      <td mat-cell *matCellDef="let row"> {{row.releasedate}} </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="topMoviesColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: topMoviesColumns;"></tr>
-  </table>
-  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
+    <h3>General Stats:</h3>
+    <p>Top Genres:</p>
+    <br />
+    <canvas baseChart [chartType]="genresChart.type" [datasets]="genresChart.data" [labels]="genresChart.labels"
+        [legend]="genresChart.legend" [options]="genresChart.options">
+    </canvas>
 </div>
 <br />
 <div>
-  <h3>Trends Chart:</h3>
-  <br />
-  Select criteria:
-  <mat-radio-group [(ngModel)]="trendCriteria" (change)="changeTrendCriteria($event)">
-    <mat-radio-button value="rating">Rating</mat-radio-button>
-    <mat-radio-button value="revenue">Revenue</mat-radio-button>
-    <mat-radio-button value="popularity">Popularity</mat-radio-button>
-  </mat-radio-group>
-  <canvas baseChart [chartType]="trendChart.type" [datasets]="trendChart.data" [labels]="trendChart.labels"
-    [legend]="trendChart.legend" [options]="trendChart.options">
-  </canvas>
+    <h3>Top Movies:</h3>
+    <br />
+    Select criteria:
+    <mat-radio-group [(ngModel)]="topMoviesCriteria" (change)="changeTopMoviesCriteria($event)">
+        <mat-radio-button value="rating">Rating</mat-radio-button>
+        <mat-radio-button value="revenue">Revenue</mat-radio-button>
+        <mat-radio-button value="popularity">Popularity</mat-radio-button>
+    </mat-radio-group>
+    <table mat-table #table [dataSource]="topMovies">
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef> Title </th>
+            <td mat-cell *matCellDef="let row" (click)="routeToMovieDetail(row)"> {{row.title}} </td>
+        </ng-container>
+        <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef> Credit </th>
+            <td mat-cell *matCellDef="let row"> {{row.role}} </td>
+        </ng-container>
+        <ng-container matColumnDef="revenue" *ngIf="topMoviesCriteria === 'revenue'">
+            <th mat-header-cell *matHeaderCellDef> Revenue </th>
+            <td mat-cell *matCellDef="let row"> ${{ row.revenue.toLocaleString('en', {useGrouping:true}) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="avg_rating" *ngIf="topMoviesCriteria === 'rating'">
+            <th mat-header-cell *matHeaderCellDef> Rating </th>
+            <td mat-cell *matCellDef="let row"> {{row.avg_rating}} </td>
+        </ng-container>
+        <ng-container matColumnDef="releasedate">
+            <th mat-header-cell *matHeaderCellDef> ReleaseDate </th>
+            <td mat-cell *matCellDef="let row"> {{row.releasedate | date }} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="topMoviesColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: topMoviesColumns;"></tr>
+    </table>
+    <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
 </div>
 <br />
 <div>
-  <h3>Successful Pairings:</h3>
-  <table mat-table #table [dataSource]="successfulPairings">
-    <ng-container matColumnDef="fullname">
-      <th mat-header-cell *matHeaderCellDef> Name </th>
-      <td mat-cell *matCellDef="let row" (click)="changeSelectedPairing(row)"> {{row.fullname}} </td>
-    </ng-container>
-    <ng-container matColumnDef="total_rev">
-      <th mat-header-cell *matHeaderCellDef> Total Revenue </th>
-      <td mat-cell *matCellDef="let row"> {{row.total_rev}} </td>
-    </ng-container>
-    <ng-container matColumnDef="num_movies">
-      <th mat-header-cell *matHeaderCellDef> Number of Movies </th>
-      <td mat-cell *matCellDef="let row"> {{row.num_movies}} </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="successfulPairingsColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: successfulPairingsColumns;"></tr>
-  </table>
+    <h3>Trends Chart:</h3>
+    <br />
+    Select criteria:
+    <mat-radio-group [(ngModel)]="trendCriteria" (change)="changeTrendCriteria($event)">
+        <mat-radio-button value="rating">Rating</mat-radio-button>
+        <mat-radio-button value="revenue">Revenue</mat-radio-button>
+        <mat-radio-button value="popularity">Popularity</mat-radio-button>
+    </mat-radio-group>
+    <canvas baseChart [chartType]="trendChart.type" [datasets]="trendChart.data" [labels]="trendChart.labels"
+        [legend]="trendChart.legend" [options]="trendChart.options">
+    </canvas>
+</div>
+<br />
+<div>
+    <h3>Successful Pairings:</h3>
+    <table mat-table #table [dataSource]="successfulPairings">
+        <ng-container matColumnDef="fullname">
+            <th mat-header-cell *matHeaderCellDef> Name </th>
+            <td mat-cell *matCellDef="let row" (click)="changeSelectedPairing(row)"> {{row.fullname}} </td>
+        </ng-container>
+        <ng-container matColumnDef="total_rev">
+            <th mat-header-cell *matHeaderCellDef> Total Revenue </th>
+            <td mat-cell *matCellDef="let row"> ${{ row.total_rev.toLocaleString('en', {useGrouping:true}) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="num_movies">
+            <th mat-header-cell *matHeaderCellDef> Number of Movies </th>
+            <td mat-cell *matCellDef="let row"> {{row.num_movies}} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="successfulPairingsColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: successfulPairingsColumns;"></tr>
+    </table>
 </div>
 <div>
-  <h3>Movies Together: </h3>
-  <table mat-table #table [dataSource]="moviesWithSelectedPairing">
-    <ng-container matColumnDef="title">
-      <th mat-header-cell *matHeaderCellDef> Title </th>
-      <td mat-cell *matCellDef="let row" (click)="routeToMovieDetail(row)"> {{row.title}} </td>
-    </ng-container>
-    <ng-container matColumnDef="revenue">
-      <th mat-header-cell *matHeaderCellDef> Revenue </th>
-      <td mat-cell *matCellDef="let row"> {{row.revenue}} </td>
-    </ng-container>
-    <ng-container matColumnDef="releasedate">
-      <th mat-header-cell *matHeaderCellDef> Release Date </th>
-      <td mat-cell *matCellDef="let row"> {{row.releasedate}} </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="['title', 'revenue', 'releasedate']"></tr>
-    <tr mat-row *matRowDef="let row; columns: ['title', 'revenue', 'releasedate'];"></tr>
-  </table>
+    <h3>Movies Together: </h3>
+    <table mat-table #table [dataSource]="moviesWithSelectedPairing">
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef> Title </th>
+            <td mat-cell *matCellDef="let row" (click)="routeToMovieDetail(row)"> {{row.title}} </td>
+        </ng-container>
+        <ng-container matColumnDef="revenue">
+            <th mat-header-cell *matHeaderCellDef> Revenue </th>
+            <td mat-cell *matCellDef="let row"> ${{ row.revenue.toLocaleString('en', {useGrouping:true}) }} </td>
+        </ng-container>
+        <ng-container matColumnDef="releasedate">
+            <th mat-header-cell *matHeaderCellDef> Release Date </th>
+            <td mat-cell *matCellDef="let row"> {{row.releasedate | date}} </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="['title', 'revenue', 'releasedate']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['title', 'revenue', 'releasedate'];"></tr>
+    </table>
 </div>

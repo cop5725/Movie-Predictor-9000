@@ -1,6 +1,9 @@
 <h3>Movies</h3>
+<div>
+    <app-search-bar></app-search-bar>
+</div>
 <div class="grid grid-pad">
-    <a *ngFor="let movie of movies" class="col-1-4" routerLink="/detail/{{movie._id}}">
+    <a *ngFor="let movie of movies" class="col-1-4">
         <div class="module movie">
             <h4>{{movie.title}}</h4>
             <h5>${{movie.revenue.toLocaleString('en', {useGrouping:true})}}</h5>

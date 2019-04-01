@@ -1,7 +1,7 @@
 <div>
   <form class="search-bar-form">
     <mat-form-field class="search-bar-third-width">
-      <input type="text" matInput placeholder="Search.." [matAutocomplete]="auto" [formControl]="searchInput">
+      <input type="text" matInput placeholder="Search for a Person..." [matAutocomplete]="auto" [formControl]="searchInput">
     </mat-form-field>
     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
       <mat-option *ngFor="let option of filteredOptions" [value]="option">
