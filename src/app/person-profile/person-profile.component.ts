@@ -153,6 +153,7 @@ export class PersonProfileComponent implements OnInit {
 
   changeTopMoviesCriteria($event: MatRadioChange): void {
     this.topMoviesCriteria = $event.value;
+    this.topMoviesColumns = [];
     this.getTopMovies();
   }
 
