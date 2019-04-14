@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouteReuseStrategy } from '@angular/router';
 import { ChartsModule } from 'ng2-charts';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatRadioModule, MatPaginatorModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatButtonModule,MatTableModule } from '@angular/material';
+import { MatRadioModule, MatPaginatorModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatCheckboxModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './/app-routing.module';
@@ -16,6 +16,7 @@ import { SearchBarComponent } from './search-bar/search-bar.component';
 import { PersonProfileComponent } from './person-profile/person-profile.component';
 import { CustomRouteReuseStrategy } from './custom-route-reuse.strategy';
 import { PredictiveAnalyticsComponent } from './predictive-analytics/predictive-analytics.component';
+import { GenreDetailComponent } from './genre-detail/genre-detail.component';
 
 @NgModule({
     declarations: [
@@ -25,6 +26,7 @@ import { PredictiveAnalyticsComponent } from './predictive-analytics/predictive-
         SearchBarComponent,
         PersonProfileComponent,
         PredictiveAnalyticsComponent,
+        GenreDetailComponent,
     ],
     imports: [
         BrowserModule,
@@ -44,6 +46,7 @@ import { PredictiveAnalyticsComponent } from './predictive-analytics/predictive-
         MatTableModule,
         MatPaginatorModule,
         MatRadioModule,
+        MatCheckboxModule,
         ChartsModule
     ],
     providers: [

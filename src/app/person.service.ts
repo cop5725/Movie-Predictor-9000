@@ -70,11 +70,19 @@ export class PersonService {
       );
   }
 
-  getPopularityTrend(id: string, criteria: string): Observable<Trend[]> {
+  getPopularityTrend(id: string, criteria: string, chartFilters): Observable<Trend[]> {
     if (!id) {
       return of();
     }
-    const options = { params: new HttpParams().set('id', id).set('criteria', criteria) };
+    const options = {
+      params: new HttpParams()
+        .set('id', id)
+        .set('criteria', criteria)
+        .set('filter', chartFilters.filter)
+        .set('agel', chartFilters.agel)
+        .set('ageu', chartFilters.ageu)
+        .set('gender', chartFilters.gender)
+    };
     return this.http.get('api/person/trends', options)
       .pipe(
         map(response => response['data'])

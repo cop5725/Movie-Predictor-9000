@@ -3,4 +3,6 @@ export class Genre {
     name: string;
     popularity: number;
     mcount: number;
+
+    constructor() {}
 }

@@ -4,6 +4,8 @@
 </div>
 <div class="grid grid-pad">
     <a *ngFor="let movie of movies" class="col-1-4">
+    <!-- (click)=routeToMovieDetail(movie)> -->
+    <!-- routerLink="/detail/{{movie.movieid}}"> -->
         <div class="module movie">
             <h4>{{movie.title}}</h4>
             <h5>${{movie.revenue.toLocaleString('en', {useGrouping:true})}}</h5>

@@ -14,6 +14,7 @@
     </canvas>
 </div>
 <br />
+<hr>
 <div>
     <h3>Top Movies:</h3>
     <br />
@@ -50,39 +51,83 @@
     <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons></mat-paginator>
 </div>
 <br />
+<hr>
 <div>
-    <h3>Trends Chart:</h3>
-    <br />
-    Select criteria:
-    <mat-radio-group [(ngModel)]="trendCriteria" (change)="changeTrendCriteria($event)">
-        <mat-radio-button value="rating">Rating</mat-radio-button>
-        <mat-radio-button value="revenue">Revenue</mat-radio-button>
-        <mat-radio-button value="popularity">Popularity</mat-radio-button>
-    </mat-radio-group>
-    <canvas baseChart [chartType]="trendChart.type" [datasets]="trendChart.data" [labels]="trendChart.labels"
-        [legend]="trendChart.legend" [options]="trendChart.options">
-    </canvas>
+  <h3>Trends Chart:</h3>
+  <br />
+  Select criteria:
+  <mat-radio-group [(ngModel)]="trendCriteria" (change)="changeTrendCriteria($event)">
+    <mat-radio-button value="rating">Rating</mat-radio-button>
+    <mat-radio-button value="revenue">Revenue</mat-radio-button>
+    <mat-radio-button value="popularity">Popularity</mat-radio-button>
+  </mat-radio-group>
+  <br />
+  <div *ngIf="trendCriteria === 'rating' || trendCriteria === 'popularity'">
+    Optional filters:
+    <mat-checkbox [(ngModel)]="chartFilters.filter">Filter</mat-checkbox>
+    <div *ngIf="chartFilters.filter">
+      Age:
+      <form class="example-form">
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="From" [(ngModel)]="chartFilters.agel" name="lowerAge">
+        </mat-form-field>
+
+        <mat-form-field class="example-full-width">
+          <input matInput placeholder="To" [(ngModel)]="chartFilters.ageu" name="upperAge">
+        </mat-form-field>
+      </form>
+      Gender:
+      <mat-radio-group [(ngModel)]="chartFilters.gender">
+        <mat-radio-button value="M">Male</mat-radio-button>
+        <mat-radio-button value="F">Female</mat-radio-button>
+        <mat-radio-button value="">Both</mat-radio-button>
+      </mat-radio-group>
+    </div>
+    <button mat-raised-button color="primary" (click)="updateTrendChart()">Update..</button>
+  </div>
+  <canvas baseChart [chartType]="trendChart.type" [datasets]="trendChart.data" [labels]="trendChart.labels"
+    [legend]="trendChart.legend" [options]="trendChart.options">
+  </canvas>
 </div>
 <br />
 <div>
-    <h3>Successful Pairings:</h3>
-    <table mat-table #table [dataSource]="successfulPairings">
-        <ng-container matColumnDef="fullname">
-            <th mat-header-cell *matHeaderCellDef> Name </th>
-            <td mat-cell *matCellDef="let row" (click)="changeSelectedPairing(row)"> {{row.fullname}} </td>
-        </ng-container>
-        <ng-container matColumnDef="total_rev">
-            <th mat-header-cell *matHeaderCellDef> Total Revenue </th>
-            <td mat-cell *matCellDef="let row"> ${{ row.total_rev.toLocaleString('en', {useGrouping:true}) }} </td>
-        </ng-container>
-        <ng-container matColumnDef="num_movies">
-            <th mat-header-cell *matHeaderCellDef> Number of Movies </th>
-            <td mat-cell *matCellDef="let row"> {{row.num_movies}} </td>
-        </ng-container>
-        <tr mat-header-row *matHeaderRowDef="successfulPairingsColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: successfulPairingsColumns;"></tr>
-    </table>
+  <p>Add Dataset</p>
+  <div>
+    <form class="search-bar-form">
+      <mat-form-field class="search-bar-third-width">
+        <input type="text" matInput placeholder="Search.." [matAutocomplete]="auto" [formControl]="trendChart.form.searchInput">
+      </mat-form-field>
+      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+        <mat-option *ngFor="let option of trendChart.form.filteredOptions" [value]="option">
+          <span>{{ option.fullname }}</span>
+        </mat-option>
+      </mat-autocomplete>
+    </form>
+    <button mat-raised-button color="primary" (click)="addDataSet()">Search..</button>
+  </div>
 </div>
+<br />
+<hr>
+<div>
+  <h3>Successful Pairings:</h3>
+  <table mat-table #table [dataSource]="successfulPairings">
+    <ng-container matColumnDef="fullname">
+      <th mat-header-cell *matHeaderCellDef> Name </th>
+      <td mat-cell *matCellDef="let row" (click)="changeSelectedPairing(row)"> {{row.fullname}} </td>
+    </ng-container>
+    <ng-container matColumnDef="total_rev">
+      <th mat-header-cell *matHeaderCellDef> Total Revenue </th>
+      <td mat-cell *matCellDef="let row"> ${{row.total_rev.toLocaleString('en', {useGrouping:true})}} </td>
+    </ng-container>
+    <ng-container matColumnDef="num_movies">
+      <th mat-header-cell *matHeaderCellDef> Number of Movies </th>
+      <td mat-cell *matCellDef="let row"> {{row.num_movies}} </td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="successfulPairingsColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: successfulPairingsColumns;"></tr>
+  </table>
+</div>
+<br />
 <div>
     <h3>Movies Together: </h3>
     <table mat-table #table [dataSource]="moviesWithSelectedPairing">

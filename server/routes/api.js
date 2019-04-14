@@ -158,46 +158,115 @@ router.get('/person/movies', (req, res) => {
 
 // Get popularity trend
 router.get('/person/trends', (req, res) => {
-    var query;
-    if (req.query.id) {
-        // Avg popularity trent grouped into year periods
-        if (req.query.criteria === 'popularity') {
-            query =
-            `SELECT ROUND(AVG(POPULARITY), 2) AS VALUE,
-            TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5)
-            || '-' ||
-            TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5 + 5 - 1)
-            AS PERIOD
-            FROM LTCARBON.MOVIE
-            WHERE MOVIEID IN
+  var query;
+  if (req.query.id) {
+    // Avg popularity trent grouped into year periods
+    if (req.query.criteria === 'popularity') {
+      query =
+        `SELECT ROUND(AVG(POPULARITY), 2) AS VALUE,
+        TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5) 
+          || '-' || 
+          TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5 + 5 - 1)
+          AS PERIOD
+        FROM LTCARBON.MOVIE
+        WHERE MOVIEID IN `;
+
+        if (req.query.filter === 'false') {
+          query +=
+            `(SELECT MOVIEID FROM LTCARBON.CAST
+            NATURAL JOIN LTCARBON.DIRECTOR
+            WHERE ACTORID = ` + req.query.id + ` OR DIRECTORID = ` + req.query.id + `)`;
+        }
+        else {
+          const ageu = req.query.ageu ? req.query.ageu : 0;
+          const agel = req.query.agel ? req.query.agel : 100;
+          var gender_filter = ``;
+          if (req.query.gender) {
+            gender_filter = `GENDER = '` + req.query.gender + `' AND`;
+          }
+          query +=
+            `(SELECT MOVIEID FROM LTCARBON.CAST
+              NATURAL JOIN LTCARBON.DIRECTOR
+              WHERE ACTORID = ` + req.query.id + ` OR DIRECTORID = ` + req.query.id + `
+              INTERSECT
+              SELECT MOVIEID FROM USERVIEW NATURAL JOIN MLENSUSER WHERE `
+              + gender_filter +
+              ` YEAROFBIRTH BETWEEN (EXTRACT(YEAR FROM SYSDATE) - ` + ageu + `)
+              AND (EXTRACT(YEAR FROM SYSDATE) - `+ agel + `))`;
+        }
+        query +=
+          `AND EXTRACT(YEAR FROM RELEASEDATE) IS NOT NULL
+          GROUP BY FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5)
+          ORDER BY PERIOD`;
+    }
+    // Avg ratings trend grouped into year periods
+    else if (req.query.criteria === 'rating') {
+      query =
+        `SELECT ROUND(AVG(RATING), 2) AS VALUE,
+        TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5) 
+        || '-' || 
+        TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5 + 5 - 1) AS PERIOD
+        FROM `;
+
+      
+      if (req.query.filter === 'true') {
+        if (req.query.ageu && req.query.agel) {
+          if (req.query.gender) {
+            query +=
+              `(SELECT MOVIEID, RATING FROM PULKIT.USERRATING
+              NATURAL JOIN PULKIT.MLENSUSER 
+              WHERE YEAROFBIRTH BETWEEN (EXTRACT(YEAR FROM SYSDATE) - ` + req.query.ageu + `)
+              AND (EXTRACT(YEAR FROM SYSDATE) - `+ req.query.agel + `)
+              AND GENDER = '`+ req.query.gender + `')`;
+          }
+          else {
+            query +=
+              `(SELECT MOVIEID, RATING FROM PULKIT.USERRATING
+              NATURAL JOIN PULKIT.MLENSUSER 
+              WHERE YEAROFBIRTH BETWEEN (EXTRACT(YEAR FROM SYSDATE) - ` + req.query.ageu + `)
+              AND (EXTRACT(YEAR FROM SYSDATE) - `+ req.query.agel + `))`;
+          }
+        }
+        else if (req.query.gender) {
+          query += 
+            `(SELECT MOVIEID, RATING FROM PULKIT.USERRATING
+            NATURAL JOIN PULKIT.MLENSUSER 
+            WHERE GENDER = '` + req.query.gender + `')`;
+        }
+      }
+      else {
+        query += ` PULKIT.USERRATING`;
+      }
+      query +=
+        ` NATURAL JOIN 
+          (SELECT MOVIEID, RELEASEDATE FROM LTCARBON.MOVIE
+          WHERE MOVIEID IN
+            (SELECT DISTINCT(MOVIEID) FROM LTCARBON.CAST
+            NATURAL JOIN LTCARBON.DIRECTOR
+            WHERE ACTORID = ` + req.query.id + ` OR DIRECTORID = ` + req.query.id + `)
+            AND EXTRACT(YEAR FROM RELEASEDATE) IS NOT NULL)
+        GROUP BY FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5)
+        ORDER BY PERIOD`;
+    }
+    // Revenue trend grouped into year {
+    else {
+      query =
+        `SELECT ROUND(AVG(REVENUE)) AS VALUE,
+          TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5) 
+          || '-' || 
+          TO_CHAR(FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5) * 5 + 5 - 1) AS PERIOD
+          FROM LTCARBON.MOVIE
+          WHERE MOVIEID IN
             (SELECT MOVIEID FROM LTCARBON.CAST
             NATURAL JOIN LTCARBON.DIRECTOR
             WHERE ACTORID = ` + req.query.id + ` OR DIRECTORID = ` + req.query.id + `)
             AND EXTRACT(YEAR FROM RELEASEDATE) IS NOT NULL
-            GROUP BY FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5)
-            ORDER BY PERIOD`;
-        }
-
-        // Avg ratings trend grouped into year periods
-        if (req.query.criteria === 'rating') {
-            query =
-            `SELECT ROUND(AVG(RATING), 2) AS VALUE,
-            TO_CHAR(FLOOR(EXTRACT(YEAR FROM to_date('1970-01-01', 'YYYY-MM-DD') + VIEWDATE / 86400)/5) * 5)
-            || '-' ||
-            TO_CHAR(FLOOR(EXTRACT(YEAR FROM to_date('1970-01-01', 'YYYY-MM-DD') + VIEWDATE / 86400)/5) * 5 + 5 - 1)
-            AS PERIOD
-            FROM USERVIEW
-            NATURAL JOIN USERRATING
-            WHERE MOVIEID IN
-                (SELECT DISTINCT(MOVIEID) FROM LTCARBON.CAST
-                NATURAL JOIN LTCARBON.DIRECTOR
-                WHERE ACTORID = ` + req.query.id + ` OR DIRECTORID = ` + req.query.id + `)
-            GROUP BY FLOOR(EXTRACT(YEAR FROM to_date('1970-01-01', 'YYYY-MM-DD') + VIEWDATE / 86400)/5)
-            ORDER BY PERIOD`;
-        }
+          GROUP BY FLOOR(EXTRACT(YEAR FROM RELEASEDATE)/5)
+          ORDER BY PERIOD`;
     }
+  }
 
-    executeQueryAndRespond(query, [], res);
+  executeQueryAndRespond(query, [], res);
 });
 
 // Get person's top genres' data
@@ -307,6 +376,36 @@ router.get('/movie/detail', (req, res) => {
     executeQueryAndRespond(query, [], res);
 })
 
+// Get movie's director
+router.get('/movie/detail/director', (req, res) => {
+  var query =
+    `SELECT PERSONID, FULLNAME FROM LTCARBON.PERSON
+    WHERE PERSONID IN 
+      (SELECT DIRECTORID FROM LTCARBON.DIRECTOR
+      WHERE MOVIEID = ` + req.query.id + `)`;
+
+  executeQueryAndRespond(query, [], res);
+})
+
+// Get movie's cast
+router.get('/movie/detail/cast', (req, res) => {
+  var query =
+    `SELECT PERSONID, FULLNAME, ROLE FROM LTCARBON.PERSON
+    JOIN
+      (SELECT ACTORID, ROLE FROM LTCARBON.CAST
+      WHERE MOVIEID = ` + req.query.id + `)
+    ON ACTORID = PERSONID
+    NATURAL JOIN (
+      SELECT ACTORID, SUM(POPULARITY) AS POPULARITY FROM LTCARBON.PERSON
+      JOIN (SELECT ACTORID, MOVIEID FROM LTCARBON.CAST)
+      ON PERSONID = ACTORID
+      NATURAL JOIN (SELECT MOVIEID, POPULARITY FROM LTCARBON.MOVIE)
+      GROUP BY ACTORID)
+    ORDER BY POPULARITY DESC`;
+
+  executeQueryAndRespond(query, [], res);
+})
+
 // Get similar movies
 router.get('/movie/similar', (req, res) => {
 
@@ -379,7 +478,7 @@ router.get('/predict', (req, res) => {
 	                    FROM LTCARBON.MOVIE m
 	                    JOIN LTCARBON.MOVIEGENRE mg on m.movieid = mg.movieid
 	                    JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
-	                    JOIN DIRECTOR d on d.movieid = m.movieid
+	                    JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                    WHERE g.name = :genre_name
 	                        AND upper(p2.fullname) LIKE upper(:director_name)
@@ -397,7 +496,7 @@ router.get('/predict', (req, res) => {
 	                    FROM LTCARBON.MOVIE m
 	                    JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                    JOIN DIRECTOR d on d.movieid = m.movieid
+	                    JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                    WHERE upper(p1.fullname) LIKE upper(:actor_name)
 	                        AND upper(p2.fullname) LIKE upper(:director_name)
@@ -413,7 +512,7 @@ router.get('/predict', (req, res) => {
 	                    -- director & date
 	                    SELECT AVG(m.revenue) as avg_revenue
 	                    FROM LTCARBON.MOVIE m
-	                    JOIN DIRECTOR d on d.movieid = m.movieid
+	                    JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                    WHERE upper(p2.fullname) LIKE upper(:director_name)
 	                        AND EXTRACT(month from m.releasedate) = :release_month
@@ -431,7 +530,7 @@ router.get('/predict', (req, res) => {
 	                    JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
 	                    JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                    JOIN DIRECTOR d on d.movieid = m.movieid
+	                    JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                    WHERE g.name = :genre_name
 	                        OR upper(p2.fullname) LIKE upper(:director_name)
@@ -456,7 +555,7 @@ router.get('/predict', (req, res) => {
 	                                FROM LTCARBON.MOVIE m
 	                                JOIN LTCARBON.MOVIEGENRE mg on m.movieid = mg.movieid
 	                                JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
-	                                JOIN DIRECTOR d on d.movieid = m.movieid
+	                                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                                WHERE g.name = :genre_name
 	                                    AND upper(p2.fullname) LIKE upper(:director_name)
@@ -474,7 +573,7 @@ router.get('/predict', (req, res) => {
 	                                FROM LTCARBON.MOVIE m
 	                                JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                                JOIN DIRECTOR d on d.movieid = m.movieid
+	                                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                                WHERE upper(p1.fullname) LIKE upper(:actor_name)
 	                                    AND upper(p2.fullname) LIKE upper(:director_name)
@@ -490,7 +589,7 @@ router.get('/predict', (req, res) => {
 	                                -- director & date
 	                                SELECT AVG(m.revenue) as avg_revenue
 	                                FROM LTCARBON.MOVIE m
-	                                JOIN DIRECTOR d on d.movieid = m.movieid
+	                                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                                WHERE upper(p2.fullname) LIKE upper(:director_name)
 	                                    AND EXTRACT(month from m.releasedate) = :release_month
@@ -512,7 +611,7 @@ router.get('/predict', (req, res) => {
 	                    JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
 	                    JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                    JOIN DIRECTOR d on d.movieid = m.movieid
+	                    JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                    WHERE g.name = :genre_name
 	                        OR upper(p1.fullname) LIKE upper(:actor_name)
@@ -537,7 +636,7 @@ router.get('/predict', (req, res) => {
 	                                FROM LTCARBON.MOVIE m
 	                                JOIN LTCARBON.MOVIEGENRE mg on m.movieid = mg.movieid
 	                                JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
-	                                JOIN DIRECTOR d on d.movieid = m.movieid
+	                                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                                WHERE g.name = :genre_name
 	                                    AND upper(p2.fullname) LIKE upper(:director_name)
@@ -555,7 +654,7 @@ router.get('/predict', (req, res) => {
 	                                FROM LTCARBON.MOVIE m
 	                                JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                                JOIN DIRECTOR d on d.movieid = m.movieid
+	                                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                                WHERE upper(p1.fullname) LIKE upper(:actor_name)
 	                                    AND upper(p2.fullname) LIKE upper(:director_name)
@@ -571,7 +670,7 @@ router.get('/predict', (req, res) => {
 	                                -- director & date
 	                                SELECT AVG(m.revenue) as avg_revenue
 	                                FROM LTCARBON.MOVIE m
-	                                JOIN DIRECTOR d on d.movieid = m.movieid
+	                                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                                WHERE upper(p2.fullname) LIKE upper(:director_name)
 	                                    AND EXTRACT(month from m.releasedate) = :release_month
@@ -591,7 +690,7 @@ router.get('/predict', (req, res) => {
 	                JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
 	                JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                JOIN DIRECTOR d on d.movieid = m.movieid
+	                JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                WHERE( g.name = :genre_name
 	                    OR upper(p1.fullname) LIKE upper(:actor_name)
@@ -604,7 +703,7 @@ router.get('/predict', (req, res) => {
 	                    JOIN LTCARBON.GENRE g on mg.genreid = g.genreid
 	                    JOIN LTCARBON.CAST c on c.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p1 on p1.personid = c.actorid
-	                    JOIN DIRECTOR d on d.movieid = m.movieid
+	                    JOIN LTCARBON.DIRECTOR d on d.movieid = m.movieid
 	                    JOIN LTCARBON.PERSON p2 on p2.personid = d.directorid
 	                    WHERE( g.name = :genre_name
 	                        OR upper(p1.fullname) LIKE upper(:actor_name)
@@ -652,6 +751,71 @@ router.get('/genres', (req, res) => {
             });
         // doRelease(db);
     });
+});
+
+router.get('/genres/delta', (req, res) => {
+  var query = 
+    `SELECT newName AS label, 
+    ROUND(ABS(pctNew-pctOld) * SIGN(pctNew-pctOld) * 1000, 2) AS data 
+  FROM
+  --Determine genre BO revenue percentages for last 5 years
+  (SELECT * FROM(
+      (SELECT NewRevenue, RATIO_TO_REPORT(NewRevenue) OVER()  pctNew, newName FROM(
+      (SELECT CAST(AVG(Movie.REVENUE) AS NUMBER (12,0) ) AS NewRevenue,LTCARBON.GENRE.NAME newName  FROM 
+      ((LTCARBON.MOVIE JOIN LTCARBON.MOVIEGENRE 
+          ON LTCARBON.MOVIE.MOVIEID=LTCARBON.MOVIEGENRE.MOVIEID) 
+          JOIN LTCARBON.GENRE ON LTCARBON.GENRE.GENREID=LTCARBON.MOVIEGENRE.GENREID)
+      WHERE RELEASEDATE IS NOT NULL 
+  --       AND ReleaseDate>= to_date('21-01-2017','DD-MM-YYYY')
+          AND EXTRACT(YEAR FROM RELEASEDATE)>= 2014
+         AND Movie.REVENUE <> 0
+      GROUP BY  LTCARBON.GENRE.NAME )))
+  INNER JOIN
+  --Determine genre BO revenue percentages for 5+ years
+    (SELECT OldRevenue, RATIO_TO_REPORT(OldRevenue) OVER ()  pctOld,  oldName FROM(
+          SELECT CAST(AVG(Movie.REVENUE) AS NUMBER (12,0) ) AS OldRevenue, LTCARBON.GENRE.NAME AS oldName  FROM 
+      ((LTCARBON.MOVIE JOIN LTCARBON.MOVIEGENRE 
+          ON LTCARBON.MOVIE.MOVIEID=LTCARBON.MOVIEGENRE.MOVIEID) 
+          JOIN LTCARBON.GENRE ON LTCARBON.GENRE.GENREID=LTCARBON.MOVIEGENRE.GENREID)
+      WHERE RELEASEDATE IS NOT NULL 
+  --       AND ReleaseDate<= to_date('21-01-2017','DD-MM-YYYY')
+          AND EXTRACT(YEAR FROM RELEASEDATE)<= 2014
+         AND Movie.REVENUE <> 0
+      GROUP BY  LTCARBON.GENRE.NAME ))
+  ON newname=oldName)) 
+  ORDER BY data desc`;
+
+  executeQueryAndRespond(query, [], res);
+});
+
+router.get('/genre/monthly', (req, res) => {
+  
+  const param = req.query.name ? req.query.name : 'nil';
+  
+  var query =
+    `SELECT CAST(AVG(Movie.REVENUE) AS NUMBER (12,0) ) AS data,
+    to_char(ReleaseDate, 'MONTH') AS label 
+    FROM
+      (LTCARBON.MOVIE NATURAL JOIN LTCARBON.MOVIEGENRE NATURAL JOIN LTCARBON.GENRE)
+    WHERE RELEASEDATE IS NOT NULL 
+      AND to_char(ReleaseDate, 'yyyy')>= 2010 
+      AND to_char(ReleaseDate, 'yyyy') <= 2019
+      AND LOWER(NAME) = '` + param.toLowerCase() + `'
+      AND Movie.REVENUE <> 0
+    GROUP BY EXTRACT(MONTH FROM ReleaseDate), to_char(ReleaseDate, 'MONTH')
+    ORDER BY EXTRACT(MONTH FROM ReleaseDate)`;
+
+  console.log('!@!@ query: ' + query);
+
+  executeQueryAndRespond(query, [], res);
+});
+
+router.get('/genre', (req, res) => {
+  var query =
+    `SELECT GENREID AS ID, NAME FROM LTCATBON.GENRE
+    WHERE GENREID = ` + req.query.id ? req.query.id : -1;
+
+    executeQueryAndRespond(query, [], res);
 });
 
 // Note: connections should always be released when not needed

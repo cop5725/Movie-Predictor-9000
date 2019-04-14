@@ -23,7 +23,7 @@
             <input matInput type="text" placeholder="Movie Director" aria-label="Number"
                 [formControl]="selectedDirector" [matAutocomplete]="autoDirector">
             <mat-autocomplete autoActiveFirstOption #autoDirector="matAutocomplete">
-                <mat-option *ngFor="let director of filteredDirectors" [value]="director.fullname">
+                <mat-option *ngFor="let director of filteredDirector" [value]="director.fullname">
                     {{director.fullname}}
                 </mat-option>
             </mat-autocomplete>

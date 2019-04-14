@@ -1,0 +1,31 @@
+<form class="search-bar-form">
+  <mat-form-field class="predict-full-width">
+    <input matInput type="text" placeholder="Movie Genre" aria-label="Number" [formControl]="selectedGenre"
+      [matAutocomplete]="autoGenre">
+    <mat-autocomplete autoActiveFirstOption #autoGenre="matAutocomplete">
+      <mat-option *ngFor="let genre of filteredGenres | async" [value]="genre.name">
+        {{genre.name}}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</form>
+<button mat-raised-button color="primary" (click)="setGenre()">Analyse</button>
+<hr>
+<div>
+  <p>Top Genres:</p>
+  <br />
+  <canvas baseChart [chartType]="deltaChart.type" [datasets]="deltaChart.dataset" [labels]="deltaChart.labels"
+    [legend]="deltaChart.legend" [options]="deltaChart.options">
+  </canvas>
+</div>
+<hr>
+<div *ngIf="genre">
+  <h2>{{genre.name}}</h2>
+  <div>
+    <p>Monthly performance:</p>
+    <br />
+    <canvas baseChart [chartType]="monthlyChart.type" [datasets]="monthlyChart.dataset" [labels]="monthlyChart.labels"
+      [legend]="monthlyChart.legend" [options]="monthlyChart.options">
+    </canvas>
+  </div>
+</div>

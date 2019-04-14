@@ -3,8 +3,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common';
 
 import { Movie } from '../movie';
+import { Person } from '../person';
 import { MovieService } from '../movie.service';
 import { MatTableDataSource, MatPaginator } from '@angular/material';
+
+export interface Cast {
+  personid: number;
+  fullname: string;
+  role: string;
+}
 
 @Component({
     selector: 'app-movie-detail',
@@ -13,6 +20,9 @@ import { MatTableDataSource, MatPaginator } from '@angular/material';
 })
 export class MovieDetailComponent implements OnInit {
     movie: Movie;
+    director: Person;
+    cast: Cast[];
+    castDisplayToggle = false;
     similarMovies = new MatTableDataSource<Movie>([]);
     similarMoviesColumns =  ['title', 'releasedate'];
 
@@ -26,6 +36,7 @@ export class MovieDetailComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+      this.director = {personid: -1, fullname: '', gender: ''};
       this.getMovie();
     }
 
@@ -45,7 +56,27 @@ export class MovieDetailComponent implements OnInit {
           this.movie = movie;
           console.log('movie');
           console.log(movie);
+          this.getDirector();
+          this.getCast();
           this.getSimilarMovies();
+        });
+    }
+
+    getDirector(): void {
+      this.movieService
+        .getDirector(this.movie.movieid.toString())
+        .toPromise()
+        .then(director => {
+          this.director = director;
+        });
+    }
+
+    getCast(): void {
+      this.movieService
+        .getCast(this.movie.movieid.toString())
+        .toPromise()
+        .then(cast => {
+          this.cast = cast;
         });
     }
 
@@ -61,6 +92,10 @@ export class MovieDetailComponent implements OnInit {
         });
     }
 
+    toggleCastDisplay(): void {
+      this.castDisplayToggle = !this.castDisplayToggle;
+    }
+
     goBack(): void {
         this.location.back();
     }
@@ -69,6 +104,12 @@ export class MovieDetailComponent implements OnInit {
       if (row) {
         console.log(row);
         this.router.navigateByUrl('/detail/' + row.movieid);
+      }
+    }
+
+    routeToPerson(personid: string): void {
+      if (personid) {
+        this.router.navigateByUrl('/person-profile/' + personid);
       }
     }
 }

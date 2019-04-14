@@ -1,7 +1,19 @@
 <div *ngIf="movie">
   <h2>{{movie.title}} Report</h2>
   <div>
-    <span>revenue: </span>{{movie.revenue}}
+    <span>director: </span>{{this.director.fullname}}<br />
+    <span>cast: </span>
+    <div>
+      <ul>
+        <li *ngFor="let actor of cast | slice:0:7">
+          <span (click)="routeToPerson(actor.personid)">{{actor.fullname}}</span>
+        </li>
+      </ul>
+    </div>
+    <span>revenue: </span>${{ movie.revenue.toLocaleString('en', {useGrouping:true}) }}<br />
+    <span>budget: </span>{{movie.budget}}<br />
+    <span>release date: </span>{{movie.releasedate | date}}<br />
+    <span>runtime: </span>{{movie.runtime}}<br />
   </div>
   <button (click)="goBack()">go back</button>
   <div>
@@ -11,17 +23,9 @@
         <th mat-header-cell *matHeaderCellDef> Title </th>
         <td mat-cell *matCellDef="let row" (click)="routeToMovieDetail(row)"> {{row.title}} </td>
       </ng-container>
-      <!-- <ng-container matColumnDef="revenue" *ngIf="topMoviesCriteria === 'revenue'">
-        <th mat-header-cell *matHeaderCellDef> Revenue </th>
-        <td mat-cell *matCellDef="let row"> {{row.revenue}} </td>
-      </ng-container> -->
-      <!-- <ng-container matColumnDef="avg_rating" *ngIf="similarMoviesCriteria === 'rating'">
-        <th mat-header-cell *matHeaderCellDef> Rating </th>
-        <td mat-cell *matCellDef="let row"> {{row.avg_rating}} </td>
-      </ng-container> -->
       <ng-container matColumnDef="releasedate">
         <th mat-header-cell *matHeaderCellDef> ReleaseDate </th>
-        <td mat-cell *matCellDef="let row"> {{row.releasedate}} </td>
+        <td mat-cell *matCellDef="let row"> {{row.releasedate | date}} </td>
       </ng-container>
       <tr mat-header-row *matHeaderRowDef="similarMoviesColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: similarMoviesColumns;"></tr>

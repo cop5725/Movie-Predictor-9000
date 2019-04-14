@@ -6,6 +6,8 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { map } from "rxjs/operators";
 
 import { Movie } from './movie';
+import { Person } from './person';
+import { Cast } from './movie-detail/movie-detail.component';
 
 @Injectable({ providedIn: 'root' })
 export class MovieService {
@@ -23,6 +25,22 @@ export class MovieService {
     return this.httpClient.get('/api/movie/detail', options)
       .pipe(
         map(response => response['data'][0])
+      );
+  }
+  
+  getDirector(id: string): Observable<Person> {
+    const options = { params: new HttpParams().set('id', id) };
+    return this.httpClient.get('/api/movie/detail/director', options)
+      .pipe(
+        map(response => response['data'][0])
+      );
+  }
+
+  getCast(id: string): Observable<Cast[]> {
+    const options = { params: new HttpParams().set('id', id) };
+    return this.httpClient.get('/api/movie/detail/cast', options)
+      .pipe(
+        map(response => response['data'])
       );
   }
 
