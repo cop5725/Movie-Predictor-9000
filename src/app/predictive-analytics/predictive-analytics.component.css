@@ -74,3 +74,7 @@ h4 {
 .predict-card {
   max-width: 400px;
 }
+
+.predict-spinner {
+  margin: 0 10px;
+}

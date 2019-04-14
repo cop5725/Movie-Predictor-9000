@@ -6,7 +6,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { RouteReuseStrategy } from '@angular/router';
 import { ChartsModule } from 'ng2-charts';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatRadioModule, MatPaginatorModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatCheckboxModule } from '@angular/material';
+import { MatProgressSpinnerModule, MatRadioModule, MatPaginatorModule, MatCardModule, MatDatepickerModule, MatNativeDateModule, MatAutocompleteModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatTableModule, MatCheckboxModule } from '@angular/material';
 
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './/app-routing.module';
@@ -47,7 +47,8 @@ import { GenreDetailComponent } from './genre-detail/genre-detail.component';
         MatPaginatorModule,
         MatRadioModule,
         MatCheckboxModule,
-        ChartsModule
+        ChartsModule,
+        MatProgressSpinnerModule
     ],
     providers: [
         MatDatepickerModule,

@@ -36,17 +36,26 @@
     </form>
     <button mat-raised-button color="primary" (click)="getPrediction()">Get Prediction!</button>
 </div>
+<br>
+<br>
 <div>
+    <mat-card class="predict-card" *ngIf='prediction.expected_revenue == 0 && fetching_prediction == true'>
+        <mat-card-content>
+            <mat-card-title>Generating Prediction</mat-card-title>
+            <mat-progress-spinner class="predict-card-spinner" color="accent" mode="indeterminate">
+            </mat-progress-spinner>
+        </mat-card-content>
+    </mat-card>
 </div>
 <div>
-    <mat-card class="predict-card">
+    <mat-card class="predict-card" *ngIf='prediction.expected_revenue'>
         <mat-card-header>
             <mat-card-title>Expected Revenue</mat-card-title>
             <mat-card-subtitle>${{ prediction.expected_revenue.toLocaleString('en', {useGrouping:true}) }}
             </mat-card-subtitle>
         </mat-card-header>
     </mat-card>
-    <mat-card class="predict-card">
+    <mat-card class="predict-card" *ngIf='prediction.expected_revenue'>
         <mat-card-content>
             <mat-card-title>Suggestions</mat-card-title>
             <mat-card *ngIf="prediction.suggested_actor">Suggested Actor: {{ prediction.suggested_actor }}</mat-card>

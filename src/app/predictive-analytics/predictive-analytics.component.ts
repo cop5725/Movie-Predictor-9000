@@ -19,6 +19,7 @@ import { PersonService } from '../person.service';
 })
 export class PredictiveAnalyticsComponent implements OnInit {
     prediction: Prediction = new Prediction();
+    fetching_prediction = false;
 
     selectedGenre = new FormControl()
     genres: Genre[] = [];
@@ -50,16 +51,18 @@ export class PredictiveAnalyticsComponent implements OnInit {
     }
 
     getPrediction(): void {
+        this.fetching_prediction = true;
         this.predictService.getPrediction(this.selectedGenre.value, this.selectedActor.value, this.selectedDirector.value, this.selectedDate.value.getMonth())
-            .subscribe(prediction => //this.prediction.expected_revenue = prediction[0]['expected_return']
+            .subscribe(prediction =>
                 {
-                this.prediction.expected_revenue = prediction[0]['expected_return'];
-                this.prediction.suggested_actor = prediction[0]['suggested_actor'];
-                this.prediction.suggested_director = prediction[0]['suggested_director'];
-                this.prediction.suggested_month = prediction[0]['suggested_date_month'];
+                    this.fetching_prediction == false;
+                    this.prediction.expected_revenue = prediction[0]['expected_return'];
+                    this.prediction.suggested_actor = prediction[0]['suggested_actor'];
+                    this.prediction.suggested_director = prediction[0]['suggested_director'];
+                    this.prediction.suggested_month = prediction[0]['suggested_date_month'];
+                }
+                );
             }
-            );
-    }
 
     getFilteredOptions() {
         this.selectedActor.valueChanges
